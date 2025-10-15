@@ -7,6 +7,9 @@ export default function Pilotos() {
     <>
       <Header />
       <Title style={{ marginLeft: "20px" }}>Pilotos temporada 2025</Title>
+      <Text c="dimmed" style={{ marginLeft: "22px" }}>
+        El numero del piloto no puede ser editado
+      </Text>
       <TablaPilotos />
     </>
   );
