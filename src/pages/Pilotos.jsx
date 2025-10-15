@@ -1,4 +1,4 @@
-import { Title } from "@mantine/core";
+import { Text, Title } from "@mantine/core";
 import { Header } from "../components/Header";
 import { TablaPilotos } from "../components/TablaPilotos";
 
