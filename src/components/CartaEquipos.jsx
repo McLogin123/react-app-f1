@@ -3,7 +3,7 @@ import { Card, Center, Group, Image, Text, Title } from "@mantine/core";
 import classes from "./cartaequipos.module.css";
 
 export function CartaEquipos({ equipo, piloto }) {
-  const pilotosActuales = piloto.filter((p) => p.equipo === equipo.Team);
+  const pilotosActuales = piloto.filter((p) => p.team?.team === equipo.team);
 
   return (
     <Card
@@ -14,8 +14,8 @@ export function CartaEquipos({ equipo, piloto }) {
     >
       <Card.Section className={classes.imageSection}>
         <Image
-          src={equipo["Photo URL"]}
-          alt={equipo["Full Team Name"]}
+          src={equipo["photo_url"]}
+          alt={equipo["full_team_name"]}
           style={{ padding: 20 }}
         />
       </Card.Section>
@@ -23,7 +23,7 @@ export function CartaEquipos({ equipo, piloto }) {
       <Group justify="space-between" mt="md">
         <div>
           <Title order={3} fw={700} className={classes.teamName}>
-            {equipo["Full Team Name"]}
+            {equipo["full_team_name"]}
           </Title>
         </div>
       </Group>
@@ -36,7 +36,7 @@ export function CartaEquipos({ equipo, piloto }) {
               Motor
             </Text>
             <Text size="sm" fw={500}>
-              {equipo["Power Unit"]}
+              {equipo["power_unit"]}
             </Text>
           </Center>
 
@@ -46,7 +46,7 @@ export function CartaEquipos({ equipo, piloto }) {
               Chasis
             </Text>
             <Text size="sm" fw={500}>
-              {equipo.Chassis}
+              {equipo.chassis}
             </Text>
           </Center>
 
@@ -56,7 +56,7 @@ export function CartaEquipos({ equipo, piloto }) {
               Fecha Debut
             </Text>
             <Text size="sm" fw={500}>
-              {equipo["First Team Entry"]}
+              {equipo["first_team_entry"]}
             </Text>
           </Center>
         </Group>
@@ -69,8 +69,8 @@ export function CartaEquipos({ equipo, piloto }) {
                   Pilotos Actuales:
                 </Text>
                 {pilotosActuales.map((p) => (
-                  <Text key={p.numero} size="sm">
-                    {p.name} (#{p.numero})
+                  <Text key={p.number} size="sm">
+                    {p.name} (#{p.number})
                   </Text>
                 ))}
               </Center>

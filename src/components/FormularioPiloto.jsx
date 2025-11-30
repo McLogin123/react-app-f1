@@ -5,15 +5,15 @@ import { useEffect } from "react";
 
 export function FormularioPiloto({ opened, onClose, initData, onSave }) {
   const form = useForm({
-    initData: {
-      numero: "",
+    initialValues: {
+      number: "",
       name: "",
       equipo: "",
       pais: "",
       photo: "",
     },
     validate: {
-      numero: (v) => (!v ? "Campo requerido" : null),
+      number: (v) => (!v ? "Campo requerido" : null),
       name: (v) => (!v ? "Campo requerido" : null),
       equipo: (v) => (!v ? "Campo requerido" : null),
       pais: (v) => (!v ? "Campo requerido" : null),
@@ -22,7 +22,13 @@ export function FormularioPiloto({ opened, onClose, initData, onSave }) {
 
   useEffect(() => {
     if (initData) {
-      form.setValues(initData);
+      form.setValues({
+        number: initData.number?.toString() || "",
+        name: initData.name || "",
+        equipo: initData.team?.team || initData.equipo || "",
+        pais: initData.country || initData.pais || "",
+        photo: initData.photo || "",
+      });
     } else {
       form.reset();
     }
@@ -46,7 +52,7 @@ export function FormularioPiloto({ opened, onClose, initData, onSave }) {
           <TextInput
             label="Numero"
             withAsterisk
-            {...form.getInputProps("numero")}
+            {...form.getInputProps("number")}
           />
           <TextInput
             label="Nombre"

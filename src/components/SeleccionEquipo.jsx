@@ -1,25 +1,23 @@
 import { useEffect, useState } from "react";
 import { Input, InputBase, Combobox, useCombobox } from "@mantine/core";
-
-const equipos = [
-  "Alpine",
-  "Aston Martin",
-  "Ferrari",
-  "Haas",
-  "Sauber",
-  "McLaren",
-  "Mercedes",
-  "Racing Bulls",
-  "Red Bull Racing",
-  "Williams",
-];
+import { getEquipos } from "../api/f1Api";
 
 export function SeleccionEquipo({ value, onChange }) {
+  const [equipos, SetEquipos] = useState([]);
+
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
 
   const [innerValue, setInnerValue] = useState(value ?? null);
+
+  useEffect(() => {
+    const loadEquipos = async () => {
+      const data = await getEquipos();
+      SetEquipos(data.map((eq) => eq.team));
+    };
+    loadEquipos();
+  }, []);
 
   useEffect(() => {
     setInnerValue(value);

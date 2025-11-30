@@ -8,9 +8,14 @@ import {
   Table,
   Text,
 } from "@mantine/core";
-import { PilotosData } from "../../data/PilotosData";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FormularioPiloto } from "./FormularioPiloto";
+import {
+  getPilotos,
+  deletePiloto,
+  updatePiloto,
+  createPiloto,
+} from "../api/f1Api";
 
 const TeamColors = {
   ferrari: "#ED1131",
@@ -26,42 +31,80 @@ const TeamColors = {
 };
 
 export function TablaPilotos() {
-  const [pilotos, setPilotos] = useState(PilotosData);
+  const [pilotos, setPilotos] = useState([]);
   const [editando, setEditando] = useState(null);
   const [opened, setOpened] = useState(false);
 
-  function borrarPiloto(numero) {
-    setPilotos(
-      pilotos.filter(function (p) {
-        return p.numero !== numero;
-      })
-    );
-  }
+  const loadPilotos = async () => {
+    const data = await getPilotos();
+    setPilotos(data);
+  };
+
+  useEffect(() => {
+    const loadPilotos = async () => {
+      const data = await getPilotos();
+      setPilotos(data);
+    };
+    loadPilotos();
+  }, []);
 
   function editarPiloto(piloto) {
     setEditando(piloto);
     setOpened(true);
   }
 
-  function manejoGuardado(values) {
-    const updated = {
-      ...values,
-      numero: editando ? editando.numero : values.numero,
-    };
+  async function borrarPiloto(id) {
+    if (window.confirm(`¿Desea eliminar piloto?`)) {
+      try {
+        await deletePiloto(id);
+        await loadPilotos();
+        setPilotos(pilotos.filter((p) => p.id !== id));
+      } catch (err) {
+        alert("Error al eliminar: " + err.message);
+      }
+    }
+  }
 
-    setPilotos((prev) =>
-      editando
-        ? prev.map((p) => (p.numero === updated.numero ? updated : p))
-        : [...prev, updated]
-    );
-    setOpened(false);
-    setEditando(null);
+  async function manejoGuardado(values) {
+    try {
+      const updated = {
+        number: parseInt(values.number),
+        name: values.name,
+        team: values.team || values.equipo,
+        country: values.country || values.pais,
+        photo: values.photo || null,
+      };
+
+      if (editando) {
+        await updatePiloto(editando.id, updated);
+        setPilotos(
+          pilotos.map((p) => (p.id === editando.id ? { ...p, ...updated } : p))
+        );
+      } else {
+        const nuevoPiloto = await createPiloto(updated);
+        setPilotos([...pilotos, nuevoPiloto]);
+      }
+      await loadPilotos();
+
+      setOpened(false);
+      setEditando(null);
+    } catch (err) {
+      if (err.status === 422 && err.data?.errors.number) {
+        alert(`Numero en uso`);
+        alert("Elige otro numero entre 1 y 99");
+      } else if (err.status === 422) {
+        const errores = Object.values(err.data.errors || {}).flat.join("\n");
+        alert(`Error de validacion:\n${errores}`);
+      } else {
+        alert(`Error: ${err.message}`);
+      }
+    }
   }
 
   const rows = pilotos.map((item) => (
-    <Table.Tr key={item.numero}>
+    <Table.Tr key={item.id}>
       <Table.Td>
-        <Text fz="sm">{item.numero}</Text>
+        <Text fz="sm">{item.number}</Text>
       </Table.Td>
       <Table.Td>
         <Group gap="sm">
@@ -73,12 +116,15 @@ export function TablaPilotos() {
       </Table.Td>
 
       <Table.Td>
-        <Badge color={TeamColors[item.equipo?.toLowerCase()]} variant="light">
-          {item.equipo}
+        <Badge
+          color={TeamColors[item.team?.team?.toLowerCase()]}
+          variant="light"
+        >
+          {item.team?.team}
         </Badge>
       </Table.Td>
       <Table.Td>
-        <Text fz="sm">{item.pais}</Text>
+        <Text fz="sm">{item.country}</Text>
       </Table.Td>
       <Table.Td>
         <Group gap={0} justify="flex-end">
@@ -92,7 +138,7 @@ export function TablaPilotos() {
           <ActionIcon
             variant="subtle"
             color="red"
-            onClick={() => borrarPiloto(item.numero)}
+            onClick={() => borrarPiloto(item.id)}
           >
             <IconTrash size={16} stroke={1.5} />
           </ActionIcon>
